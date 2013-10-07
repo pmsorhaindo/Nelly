@@ -7,10 +7,16 @@ Created on 30 Sep 2013
 from __future__ import division     # getting division right! 
 from nltk.corpus import stopwords   # list of "useful" words 
 import matplotlib.pyplot as pyplot  # for pretty graphs
-
+import re
 
 list_of_corpora = ["AmazonReviewCorpusReader","ReutersCorpusReader","WSJCorpusReader","TwitterCorpusReader","MedlineCorpusReader"]
 importedCorpora = []
+
+def simpleTokenize(unTokenizedStr):
+    return unTokenizedStr.split()
+
+def simpleRegexTokenize(unTokenizedStr):
+    re.sub("([.?!'])"," \g<1>",unTokenizedStr).split()
 
 def tokenListToLowerCase(tokensIn):
     tokensOut = [token.lower() for token in tokensIn]
