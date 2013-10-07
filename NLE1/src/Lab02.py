@@ -31,6 +31,7 @@ rcr = ReutersCorpusReader()    #Create a new reader
 
 sentences = []
 
+
 for sentence in tcr.sample_raw_sents(10):
     sentences.append(sentence)
     
