@@ -16,7 +16,7 @@ def simpleTokenize(unTokenizedStr):
     return unTokenizedStr.split()
 
 def simpleRegexTokenize(unTokenizedStr):
-    re.sub("([.?!'])"," \g<1>",unTokenizedStr).split()
+    return re.sub("([.?!'//()])"," \g<1>",unTokenizedStr).split()
 
 def tokenListToLowerCase(tokensIn):
     tokensOut = [token.lower() for token in tokensIn]
