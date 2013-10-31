@@ -38,7 +38,7 @@ neg_training_data, neg_testing_data = split_data(book_reader.negative().document
 training_data = pos_training_data + neg_training_data
 testing_data = pos_testing_data + neg_testing_data
 
-positive_words = ["splendid","resplendent","splendiferous","good","awesome","great","cool","fantastic"]
+positive_words = ["brilliant","splendid","resplendent","splendiferous","good","awesome","great","cool","fantastic"]
 negative_words = ["mediocre","paltry","flakey","awful","bad","inconsequential","pathetic","fail"]
 
 
