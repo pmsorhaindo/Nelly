@@ -1,4 +1,5 @@
 from random import sample
+from random import shuffle
 from nltk.probability import FreqDist
 from sussex_nltk.stats import evaluate_wordlist_classifier
 from nltk.classify import NaiveBayesClassifier
