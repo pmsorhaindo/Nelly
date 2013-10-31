@@ -38,3 +38,4 @@ def format_data(reviews, label, feature_extraction_fn=None):
     else:
         data = [(dict([(feature, True) for feature in feature_extraction_fn(review)]), label) for review in reviews]
     return data
+

@@ -1,6 +1,9 @@
 from random import sample
 from nltk.probability import FreqDist
 from sussex_nltk.stats import evaluate_wordlist_classifier
+from nltk.classify import NaiveBayesClassifier
+from nltk.classify.util import accuracy
+
 
 import Lab05
 
@@ -62,6 +65,7 @@ def words_as_frequent_as_x(fDist_of_words,x=250):
 #words
 negative_book_words_list = top_x_most_frequent(neg_book_freqdist,60)
 positive_book_words_list = top_x_most_frequent(pos_book_freqdist,60)
+
 print(type(positive_book_words_list))
 
 # classifier creation
@@ -85,4 +89,18 @@ formatted_pos_training = Lab05.format_data(pos_training_data, "pos")
 formatted_neg_training = Lab05.format_data(neg_training_data, "neg") 
 formatted_training_data = formatted_pos_training + formatted_neg_training
 
-#print formatted_training_data
+formatted_pos_testing = Lab05.format_data(pos_testing_data, "pos") 
+formatted_neg_testing = Lab05.format_data(neg_testing_data, "neg") 
+formatted_testing_data = formatted_pos_testing + formatted_neg_testing
+
+
+#Naive Bayes takes the marked documents in the training data and just trains on them. with .train.
+# 
+#Train on a list of reviews
+nb_classifier = NaiveBayesClassifier.train(formatted_training_data)
+ 
+#Test on another list of reviews
+print "Accuracy:", accuracy(nb_classifier, formatted_testing_data)
+ 
+#Print the features that the NB classifier found to be most important in making classifications
+nb_classifier.show_most_informative_features() 
