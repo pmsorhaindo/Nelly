@@ -1,10 +1,10 @@
 from random import sample
 from random import shuffle
 from nltk.probability import FreqDist
+from nltk.corpus import stopwords
 from sussex_nltk.stats import evaluate_wordlist_classifier
 from nltk.classify import NaiveBayesClassifier
 from nltk.classify.util import accuracy
-
 
 import Lab05
 
@@ -26,17 +26,39 @@ def split_data(data, ratio=0.7):
 def get_all_words(amazon_reviews):
     print(type(amazon_reviews[1]))
     return reduce(lambda words,review: words+review.words(), amazon_reviews, [])
+
+def feature_extractor(amazon_review):
+    # Below follows example functionality that you should include in your feature extractor
+    #This code shows you how to get lowercase versions of all the words
+    tokens = ['You', 'know', 'NOTHING,', 'Jon', 'Snow']
+    print [token.lower() for token in tokens]
+    #Replace all number tokens with "NUM"
+    numbers = ['in', 'the', 'year', '120', 'of', 'the', 'fourth', 'age', ',', 'after', '120', 'years', 'as', 'king', ',' , 'aragorn', 'died', 'at', 'the', 'age', 'of', '210']
+    print ["NUM" if token.isdigit() else token for token in numbers]
+    #This code shows you how to filter out non-alphabetic words and stopwords.
+    print [w for w in tokens if w.isalpha() and w not in stopwords.words('english')]
+
+    return amazon_review.words()
  
+
 #Create an Amazon corpus reader pointing at only book reviews
 book_reader = AmazonReviewCorpusReader().category("book")
  
 #In order to get even random splits, where each data set is a list of Amazon Review objects.
 pos_training_data, pos_testing_data = split_data(book_reader.positive().documents()) #See the note above this code snippet for a description of the "documents" method.
 neg_training_data, neg_testing_data = split_data(book_reader.negative().documents())
+
+#Get some extra dvd data
+extra_dvd_positive = [r for r in book_reader.unlabeled(["book"]).documents() if r.rating() > 4.9 ]
+extra_dvd_negative = [r for r in book_reader.unlabeled(["book"]).documents() if r.rating() < 1.1 ]
  
 #You can also combine the training data
 training_data = pos_training_data + neg_training_data
 testing_data = pos_testing_data + neg_testing_data
+
+data_to_shuffle = training_data
+shuffled_data = shuffle(training_data)
+training_data_subset = training_data[:500] # first 500 reviews
 
 positive_words = ["brilliant","splendid","resplendent","splendiferous","good","awesome","great","cool","fantastic"]
 negative_words = ["mediocre","paltry","flakey","awful","bad","inconsequential","pathetic","fail"]
