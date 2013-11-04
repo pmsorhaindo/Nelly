@@ -28,17 +28,15 @@ def get_all_words(amazon_reviews):
     return reduce(lambda words,review: words+review.words(), amazon_reviews, [])
 
 def feature_extractor(amazon_review):
-    # Below follows example functionality that you should include in your feature extractor
-    #This code shows you how to get lowercase versions of all the words
-    tokens = ['You', 'know', 'NOTHING,', 'Jon', 'Snow']
-    print [token.lower() for token in tokens]
+    # Extract all words from the review
+    list_of_words = amazon_review.words()
+    #Get lowercase versions of all the words  
+    lowercase_words = [word.lower() for word in list_of_words]
     #Replace all number tokens with "NUM"
-    numbers = ['in', 'the', 'year', '120', 'of', 'the', 'fourth', 'age', ',', 'after', '120', 'years', 'as', 'king', ',' , 'aragorn', 'died', 'at', 'the', 'age', 'of', '210']
-    print ["NUM" if token.isdigit() else token for token in numbers]
-    #This code shows you how to filter out non-alphabetic words and stopwords.
-    print [w for w in tokens if w.isalpha() and w not in stopwords.words('english')]
-
-    return amazon_review.words()
+    words_numbers_removed  = ["NUM" if word.isdigit() else word for word in lowercase_words]
+    # Filter out non-alphabetic words and stopwords.
+    words = [word for word in words_numbers_removed if word.isalpha() and word not in stopwords.words('english')]
+    return words
  
 
 #Create an Amazon corpus reader pointing at only book reviews
@@ -103,7 +101,7 @@ print intro_pos_txt + book_classifier.classify(get_all_words(pos_testing_data))
 
 #print get_all_words(neg_testing_data)
 
-evaluate_wordlist_classifier(book_classifier,pos_testing_data,neg_testing_data)  
+evaluate_wordlist_classifier(book_classifier,pos_testing_data,neg_testing_data)
 
 
 
