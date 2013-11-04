@@ -21,4 +21,4 @@ class SimpleClassifier(ClassifierI):
         return [self.classify(doc) for doc in docs] 
  
     def labels(self): 
-        return ("P", "N")
+        return ("P", "N") 
