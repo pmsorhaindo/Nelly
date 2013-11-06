@@ -24,7 +24,7 @@ def split_data(data, ratio=0.7):
 
 #Reduce a list of reviews to a list of all words in all reviews. 
 def get_all_words(amazon_reviews):
-    print(type(amazon_reviews[1]))
+    # print(type(amazon_reviews[1]))
     return reduce(lambda words,review: words+review.words(), amazon_reviews, [])
 
 def feature_extractor(amazon_review):
