@@ -46,7 +46,7 @@ book_reader = AmazonReviewCorpusReader().category("book")
 pos_training_data, pos_testing_data = split_data(book_reader.positive().documents()) #See the note above this code snippet for a description of the "documents" method.
 neg_training_data, neg_testing_data = split_data(book_reader.negative().documents())
 
-#Get some extra dvd data
+#Get some extra book data
 extra_dvd_positive = [r for r in book_reader.unlabeled(["book"]).documents() if r.rating() > 4.9 ]
 extra_dvd_negative = [r for r in book_reader.unlabeled(["book"]).documents() if r.rating() < 1.1 ]
  
@@ -58,8 +58,17 @@ data_to_shuffle = training_data
 shuffled_data = shuffle(training_data)
 training_data_subset = training_data[:500] # first 500 reviews
 
-positive_words = ["brilliant","splendid","resplendent","splendiferous","good","awesome","great","cool","fantastic"]
+# hand crafter positive wordlist
+positive_words = ["brilliant","splendid","resplendent","splendiferous","good","awesome","great","cool","fantastic",
+                  "amazing","blithesome","excellent","fabulous","favorable","fortuitous","incredible","ineffable","mirthful"
+                  "outstanding","perfect","propitious","remarkable","smart","spectacular","splendid","stellar","stupendous",
+                  "super","ultimate","unbelievable","wondrous",]
+# hand crafter negative wordlist
 negative_words = ["mediocre","paltry","flakey","awful","bad","inconsequential","pathetic","fail"]
+
+
+
+
 
 
 #A frequency distribution over all words in positive book reviews
@@ -100,9 +109,7 @@ print intro_neg_txt + book_classifier.classify(get_all_words(neg_testing_data))
 print intro_pos_txt + book_classifier.classify(get_all_words(pos_testing_data))
 
 #print get_all_words(neg_testing_data)
-
 evaluate_wordlist_classifier(book_classifier,pos_testing_data,neg_testing_data)
-
 
 
 #Format the positive and negative separately
