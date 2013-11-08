@@ -4,14 +4,14 @@ Created on 30 Sep 2013
 @author: ps324
 '''
 
-from __future__ import division     # getting division right! 
-from sussex_nltk.corpus_readers import AmazonReviewCorpusReader
-from sussex_nltk.stats import evaluate_wordlist_classifier
+from __future__ import division     # useful division
+from sussex_nltk.corpus_readers import AmazonReviewCorpusReader # the sample data
 from nltk.probability import FreqDist # frequency distribution objects
 from nltk.corpus import stopwords   # list of "useful" words 
 import matplotlib.pyplot as pyplot  # for pretty graphs
-from random import sample
-import re
+from random import sample           #
+import numpy as np                  # the Python NumPy library
+import re                           # regular expressions
 
 list_of_corpora = ["AmazonReviewCorpusReader", "ReutersCorpusReader", "WSJCorpusReader", "TwitterCorpusReader", "MedlineCorpusReader"]
 list_of_amazon_categories = ["dvd", "elec", "book", "kitchen"]
@@ -147,11 +147,11 @@ def words_as_frequent_as_x(fDist_of_words, x=250):
 def top_x_most_frequent(fDist_of_words, x=100):
     return fDist_of_words.keys()[:x]
 
-def pos_neg_wordlist(training_fdist_tuple, wordlist_function ,x=250):
+def pos_neg_wordlist(training_fdist_tuple, wordlist_function , x=250):
     pos, neg = training_fdist_tuple
-    fdist_pos = wordlist_function(pos,x)
-    fdist_neg = wordlist_function(neg,x)
-    return (fdist_pos,fdist_neg)
+    fdist_pos = wordlist_function(pos, x)
+    fdist_neg = wordlist_function(neg, x)
+    return (fdist_pos, fdist_neg)
 
 
 def set_up_readers():
@@ -168,7 +168,7 @@ def set_up_readers():
 
 # Splits each readers pos/neg data into training and testing data according to a user defined ratio (default 0.7).
 # This function returns a tuple of tuples structure containing the split data.
-def split_by_classification(list_of_readers,ratio=0.7):
+def split_by_classification(list_of_readers, ratio=0.7):
     
     split_reader_data = []
     
@@ -184,16 +184,16 @@ def get_freq_distribution_of(data):
     return FreqDist(get_all_words(data))
 
 def calculate_training_freq_dists(data):
-    ((pos_training_data,neg_training_data),(_,_)) = data
+    ((pos_training_data, neg_training_data), (_, _)) = data
     pos_training_freq = get_freq_distribution_of(pos_training_data)
     neg_training_freq = get_freq_distribution_of(neg_training_data)
-    return (pos_training_freq,neg_training_freq)
+    return (pos_training_freq, neg_training_freq)
 
 
 def format_for_naive_bayes(pos_neg_train_test_struct):
     
     # De-construct the split data structure
-    ((pos_training_data,neg_training_data),(pos_testing_data,neg_testing_data)) = pos_neg_train_test_struct
+    ((pos_training_data, neg_training_data), (pos_testing_data, neg_testing_data)) = pos_neg_train_test_struct
     
     #Format the positive and negative separately
     formatted_pos_training = format_data(pos_training_data, "pos") 
@@ -203,12 +203,12 @@ def format_for_naive_bayes(pos_neg_train_test_struct):
     formatted_pos_testing = format_data(pos_testing_data, "pos")
     formatted_neg_testing = format_data(neg_testing_data, "neg") 
     formatted_testing_data = formatted_pos_testing + formatted_neg_testing
-    return (formatted_training_data,formatted_testing_data)
+    return (formatted_training_data, formatted_testing_data)
 
 def extract_testing_data(pos_neg_train_test_struct):
     
-    ((pos_training_data,neg_training_data),(pos_testing_data,neg_testing_data)) = pos_neg_train_test_struct
-    return (pos_testing_data,neg_testing_data)
+    ((_, _), (pos_testing_data, neg_testing_data)) = pos_neg_train_test_struct
+    return (pos_testing_data, neg_testing_data)
 
 #
 def isnumberFloatCast(s):
@@ -217,4 +217,18 @@ def isnumberFloatCast(s):
         return True
     except ValueError:
         return False
+
+
+# drawing graphs
+def plot_results(results, title, xlabels, ylabel="Accuracy"):
+    '''Plot a bar graph of results'''
+    ind = np.arange(len(results))
+    width = 0.4
+    pyplot.bar(ind, results, width, color="#1AADA4")
+    pyplot.ylabel(ylabel)
+    pyplot.ylim(ymax=100)
+    pyplot.xticks(ind + width / 2.0, xlabels)
+    pyplot.title(title)
+    pyplot.show()
+ 
 
