@@ -6,11 +6,13 @@ Created on 30 Sep 2013
 
 from __future__ import division     # useful division
 from sussex_nltk.corpus_readers import AmazonReviewCorpusReader # the sample data
+from sussex_nltk.stats import evaluate_wordlist_classifier
 from nltk.probability import FreqDist # frequency distribution objects
 from nltk.corpus import stopwords   # list of "useful" words 
 import matplotlib.pyplot as pyplot  # for pretty graphs
-from random import sample           #
+from random import sample           # random sampling
 import numpy as np                  # the Python NumPy library
+import matplotlib.pyplot as plt     # graph plotting 
 import re                           # regular expressions
 
 list_of_corpora = ["AmazonReviewCorpusReader", "ReutersCorpusReader", "WSJCorpusReader", "TwitterCorpusReader", "MedlineCorpusReader"]
@@ -183,6 +185,7 @@ def split_by_classification(list_of_readers, ratio=0.7):
 def get_freq_distribution_of(data):
     return FreqDist(get_all_words(data))
 
+# Extracts a training frequency distribution from the split_data tuple.
 def calculate_training_freq_dists(data):
     ((pos_training_data, neg_training_data), (_, _)) = data
     pos_training_freq = get_freq_distribution_of(pos_training_data)
@@ -217,18 +220,29 @@ def isnumberFloatCast(s):
         return True
     except ValueError:
         return False
-
+    
+def average_from_list(a_list):
+    return reduce(lambda x, y: x + y, a_list) / len(a_list)
 
 # drawing graphs
-def plot_results(results, title, xlabels, ylabel="Accuracy"):
+def plot_results(results, title, xlabels, ymax=100, ylabel="Accuracy"):
     '''Plot a bar graph of results'''
     ind = np.arange(len(results))
     width = 0.4
     pyplot.bar(ind, results, width, color="#1AADA4")
     pyplot.ylabel(ylabel)
-    pyplot.ylim(ymax=100)
+    pyplot.ylim(ymax)
     pyplot.xticks(ind + width / 2.0, xlabels)
     pyplot.title(title)
     pyplot.show()
  
 
+'''   
+mu, sigma = 0, 0.1 # mean and standard deviation
+s = np.random.normal(mu, sigma, 1000)
+count, bins, ignored = plt.hist(s, 30, normed=True)
+plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
+np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
+linewidth=2, color='r')
+plt.show()
+'''
