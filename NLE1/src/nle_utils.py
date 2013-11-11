@@ -8,9 +8,10 @@ from __future__ import division     # useful division
 from sussex_nltk.corpus_readers import AmazonReviewCorpusReader # the sample data
 from sussex_nltk.stats import evaluate_wordlist_classifier
 from nltk.probability import FreqDist # frequency distribution objects
-from nltk.corpus import stopwords   # list of "useful" words 
+from nltk.corpus import stopwords   # list of "useful" words
 import matplotlib.pyplot as pyplot  # for pretty graphs
 from random import sample           # random sampling
+from random import shuffle          # randomly arrage lists
 import numpy as np                  # the Python NumPy library
 import matplotlib.pyplot as plt     # graph plotting 
 import re                           # regular expressions
@@ -117,23 +118,48 @@ def split_data(data, ratio=0.7):
  
     return (training_data, testing_data)                       #Return split data
 
+def k_fold_split_data_indicies(data, k ):
+    data = list(data)
+    size = len(data)
+    indicies = range(0,size)
+    shuffle(indicies)
+    fold_size = int(round(size/k))
+    list_of_folds_data = []
+    
+    #print size
+    #print indicies
+    #print fold_size
+    
+    for i in range(0,len(indicies), fold_size):
+        list_of_folds_data.append(indicies[i:i + fold_size])
+    
+    return list_of_folds_data     #Return split data as a list of folds
+
+def k_fold_get_data_from_indices(list_of_fold_indices, data):
+    data = list(data)
+    list_of_k_fold_data = []
+    
+    for fold_indices in list_of_fold_indices:
+        print fold_indices
+        print fold_indices[0]
+        print "asdf"
+        print data
+        list_of_k_fold_data.append(data[j] for j in fold_indices)
+
+    return list_of_k_fold_data
+
+#
+def k_fold_split_data(data, k ):
+    data = list(data)
+    k_fold_indices = k_fold_split_data_indicies(data, k)
+    folded_data = k_fold_get_data_from_indices(k_fold_indices,data)
+    return folded_data     #Return split data as a list of folds
+
 # Reduce a list of reviews to a list of all words in all reviews. 
 def get_all_words(amazon_reviews):
     # print(type(amazon_reviews[1]))
     return reduce(lambda words, review: words + review.words(), amazon_reviews, [])
 
-#
-def feature_extractor(amazon_review):
-    # Extract all words from the review
-    list_of_words = amazon_review.words()
-    # Get lowercase versions of all the words  
-    lowercase_words = [word.lower() for word in list_of_words]
-    # Replace all number tokens with "NUM"
-    words_numbers_removed = ["NUM" if word.isdigit() else word for word in lowercase_words]
-    # Filter out non-alphabetic words and stopwords.
-    words = [word for word in words_numbers_removed if word.isalpha() and word not in stopwords.words('english')]
-
-    return words
 
 # feature_extraction_fn an awesome point to remove stop words.
 def format_data(reviews, label, feature_extraction_fn=None):
@@ -142,6 +168,18 @@ def format_data(reviews, label, feature_extraction_fn=None):
     else:
         data = [(dict([(feature, True) for feature in feature_extraction_fn(review)]), label) for review in reviews]
     return data
+
+#
+def format_data_kfold(folds_of_reviews, label, feature_extraction_fn=None):
+    formatted_folds = []
+    for review_fold in folds_of_reviews:
+        data = []
+        if feature_extraction_fn is None: # If a feature extraction function is not provided, use simply the words of the review as features
+            data = [(dict([(feature, True) for feature in review.words()]), label) for review in review_fold]
+        else:
+            data = [(dict([(feature, True) for feature in feature_extraction_fn(review)]), label) for review in review_fold]
+        formatted_folds.append(data)
+    return formatted_folds
 
 def words_as_frequent_as_x(fDist_of_words, x=250):
     return [word for word, count in fDist_of_words.iteritems() if count > x]
@@ -170,41 +208,79 @@ def set_up_readers():
 
 # Splits each readers pos/neg data into training and testing data according to a user defined ratio (default 0.7).
 # This function returns a tuple of tuples structure containing the split data.
-def split_by_classification(list_of_readers, ratio=0.7):
+def split_by_classification(list_of_readers, ratio=0.7, kfold=False):
     
     split_reader_data = []
     
-    for reader in list_of_readers:
-        pos_training_data, pos_testing_data = split_data(reader.positive().documents(), ratio) #See the note above this code snippet for a description of the "documents" method.
-        neg_training_data, neg_testing_data = split_data(reader.negative().documents(), ratio)
-        split_reader_data.append(((pos_training_data, neg_training_data), (pos_testing_data, neg_testing_data)))
-     
+    if kfold == False:
+        for reader in list_of_readers:
+            pos_training_data, pos_testing_data = split_data(reader.positive().documents(), ratio) #See the note above this code snippet for a description of the "documents" method.
+            neg_training_data, neg_testing_data = split_data(reader.negative().documents(), ratio)
+            split_reader_data.append(((pos_training_data, neg_training_data), (pos_testing_data, neg_testing_data)))
+    else:
+        for reader in list_of_readers:
+            pos_kfold_data = k_fold_split_data(reader.positive().documents(), ratio) #See the note above this code snippet for a description of the "documents" method.
+            neg_kfold_data = k_fold_split_data(reader.negative().documents(), ratio)
+            split_reader_data.append((pos_kfold_data, neg_kfold_data))     
     return split_reader_data
 
 # FreqDist training data (For simple classifier)
-def get_freq_distribution_of(data):
-    return FreqDist(get_all_words(data))
+def get_freq_distribution_of(data,feature_extraction_fn):
+    words = get_all_words(data)
+    if feature_extraction_fn != None:
+        words = feature_extraction_fn(words)
+    return FreqDist(words)
 
 # Extracts a training frequency distribution from the split_data tuple.
-def calculate_training_freq_dists(data):
+def calculate_training_freq_dists(data,feature_extraction_fn):
     ((pos_training_data, neg_training_data), (_, _)) = data
-    pos_training_freq = get_freq_distribution_of(pos_training_data)
-    neg_training_freq = get_freq_distribution_of(neg_training_data)
+    pos_training_freq = get_freq_distribution_of(pos_training_data,feature_extraction_fn)
+    neg_training_freq = get_freq_distribution_of(neg_training_data,feature_extraction_fn)
     return (pos_training_freq, neg_training_freq)
 
+def format_kfold_for_naive_bayes(pos_neg_kfold_tuple, feature_extraction_fn):
 
-def format_for_naive_bayes(pos_neg_train_test_struct):
+    
+    pos_kfold_data, neg_kfold_data = pos_neg_kfold_tuple
+    
+    pos_kfold_list = [] 
+    for fold in pos_kfold_data:
+        array_of_values = []
+        for y in fold :
+            array_of_values.append(y)
+        pos_kfold_list.append(array_of_values) 
+    print pos_kfold_list[0]
+    
+    neg_kfold_list = [] 
+    for fold in neg_kfold_data:
+        array_of_values = []
+        for y in fold :
+            array_of_values.append(y)
+        neg_kfold_list.append(array_of_values)
+    print neg_kfold_list[0]
+    
+    print "neg_kfold_list"
+    print type(neg_kfold_list)
+    print neg_kfold_list
+    
+    formatted_pos_data = format_data_kfold(pos_kfold_list, "pos", feature_extraction_fn) 
+    formatted_neg_data = format_data_kfold(neg_kfold_list, "neg", feature_extraction_fn)
+    
+
+    return formatted_pos_data,formatted_neg_data
+
+def format_for_naive_bayes(pos_neg_train_test_struct, feature_extraction_fn):
     
     # De-construct the split data structure
     ((pos_training_data, neg_training_data), (pos_testing_data, neg_testing_data)) = pos_neg_train_test_struct
     
     #Format the positive and negative separately
-    formatted_pos_training = format_data(pos_training_data, "pos") 
-    formatted_neg_training = format_data(neg_training_data, "neg") 
+    formatted_pos_training = format_data(pos_training_data, "pos", feature_extraction_fn) 
+    formatted_neg_training = format_data(neg_training_data, "neg", feature_extraction_fn) 
     formatted_training_data = formatted_pos_training + formatted_neg_training
     
-    formatted_pos_testing = format_data(pos_testing_data, "pos")
-    formatted_neg_testing = format_data(neg_testing_data, "neg") 
+    formatted_pos_testing = format_data(pos_testing_data, "pos", feature_extraction_fn)
+    formatted_neg_testing = format_data(neg_testing_data, "neg", feature_extraction_fn) 
     formatted_testing_data = formatted_pos_testing + formatted_neg_testing
     return (formatted_training_data, formatted_testing_data)
 
