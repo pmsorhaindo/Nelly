@@ -17,7 +17,7 @@ number_of_tests = 30
 
 k_fold = False
 k_fold_value = 10
-cross_domain = ""
+cross_domain = "book"
 sample_ratio = 0.8
 feature_extraction = fe.nb_feature_extractor_stopwords
 
@@ -53,8 +53,8 @@ if k_fold == False:
                 
                 sys.stdout.write("DOMAIN:" + nle_utils.list_of_amazon_categories[i] + " tested on " + cross_domain + ":")
                 fo.write("DOMAIN:" + nle_utils.list_of_amazon_categories[i] + " tested on " + cross_domain + ":")
-                train_nb_data, _ = nle_utils.format_for_naive_bayes(domain_split)
-                _, test_nb_data = nle_utils.format_for_naive_bayes(split_data[nle_utils.list_of_amazon_categories.index(cross_domain)])
+                train_nb_data, _ = nle_utils.format_for_naive_bayes(domain_split,feature_extraction)
+                _, test_nb_data = nle_utils.format_for_naive_bayes(split_data[nle_utils.list_of_amazon_categories.index(cross_domain)],feature_extraction)
                 nb_classifier = NaiveBayesClassifier.train(train_nb_data)
                 sys.stdout.write("ACCURACY:" + str(accuracy(nb_classifier, test_nb_data)) + '\n')
                 fo.write("ACCURACY:" + str(accuracy(nb_classifier, test_nb_data)) + '\r\n')
