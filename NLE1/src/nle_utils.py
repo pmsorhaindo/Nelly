@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt     # graph plotting
 import re                           # regular expressions
 
 list_of_corpora = ["AmazonReviewCorpusReader", "ReutersCorpusReader", "WSJCorpusReader", "TwitterCorpusReader", "MedlineCorpusReader"]
-list_of_amazon_categories = ["dvd", "elec", "book", "kitchen"]
+list_of_amazon_categories = ["elec", "dvd", "book", "kitchen"]
 importedCorpora = []
 #list_of_readers = []
 #split_reader_data = []
@@ -228,7 +228,7 @@ def split_by_classification(list_of_readers, ratio=0.7, kfold=False):
 def get_freq_distribution_of(data,feature_extraction_fn):
     words = get_all_words(data)
     if feature_extraction_fn != None:
-        words = feature_extraction_fn(words)
+        words = feature_extraction_fn(data)
     return FreqDist(words)
 
 # Extracts a training frequency distribution from the split_data tuple.

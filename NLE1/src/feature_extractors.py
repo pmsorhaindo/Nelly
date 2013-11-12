@@ -35,6 +35,9 @@ def nb_feature_extractor_num(amazon_review):
     return words_numbers_removed
 
 def simple_feature_extractor_stopwords(list_of_words):
+    
+    list_of_words = sum(map(lambda x: x.words(), list_of_words),[])
+    #print list_of_words
     # Get lowercase versions of all the words  
     lowercase_words = [word.lower() for word in list_of_words]
     # Replace all number tokens with "NUM"
@@ -44,6 +47,7 @@ def simple_feature_extractor_stopwords(list_of_words):
     return words
 
 def simple_feature_extractor_num(list_of_words):
+    list_of_words = sum(map(lambda x: x.words(), list_of_words),[])
     # Get lowercase versions of all the words  
     lowercase_words = [word.lower() for word in list_of_words]
     # Replace all number tokens with "NUM"
@@ -51,6 +55,7 @@ def simple_feature_extractor_num(list_of_words):
     return words_numbers_removed
 
 def simple_feature_extractor_lowercase(list_of_words):
+    list_of_words = sum(map(lambda x: x.words(), list_of_words),[])
     # Get lowercase versions of all the words  
     lowercase_words = [word.lower() for word in list_of_words]
     return lowercase_words

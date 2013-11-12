@@ -16,9 +16,9 @@ import sys
 # Ensure Amazon readers are defined
 list_of_readers = nle_utils.set_up_readers()
 number_of_tests = 30
-feature_extractor = None
+feature_extractor = fe.simple_feature_extractor_stopwords
 
-fo = open("N:\\Downloads\\NLE\\results_s.txt", "wb")
+fo = open("N:\\Downloads\\NLE\\results_s_mif_100most.txt", "wb")
 
 for x in xrange(0,number_of_tests):
 
@@ -40,9 +40,19 @@ for x in xrange(0,number_of_tests):
         fdists = nle_utils.calculate_training_freq_dists(domain_split,feature_extractor)
         
         ### DECISION: top x OR more than x
-        wordlist_tuple = nle_utils.pos_neg_wordlist(fdists,nle_utils.words_as_frequent_as_x,200) # todo 200, 100
-        #wordlist_tuple = nle_utils.pos_neg_wordlist(fdists,nle_utils.top_x_most_frequent,100)
+        #wordlist_tuple = nle_utils.pos_neg_wordlist(fdists,nle_utils.words_as_frequent_as_x,200) # todo 200, 100
+        wordlist_tuple = nle_utils.pos_neg_wordlist(fdists,nle_utils.top_x_most_frequent,100)
         #wordlist_tuple = nle_utils.positive_words, nle_utils.negative_words
+        
+        ### most important features ###
+        ## comment to improve perfomance
+        pos_freqd, neg_freqd = wordlist_tuple
+        
+        print "pos"
+        print pos_freqd[:10]
+        print "neg"
+        print neg_freqd[:10]
+        
         
         s = simple_classifier.SimpleClassifier(wordlist_tuple[0],wordlist_tuple[1])
         
