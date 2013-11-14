@@ -15,18 +15,20 @@ import sys
 list_of_readers = nle_utils.set_up_readers()
 number_of_tests = 30
 
-k_fold = False
+# Key parameters to control experiments
+k_fold = False # ran out of time to implement this functionality this should remain as false.
 k_fold_value = 10
 cross_domain = "" # N.B. This value must be equal to the first value in nle_utils.list_of_amazon_categories
 sample_ratio = 0.8
-feature_extraction = fe.nb_feature_extractor_stopwords
-global cross_domain_testing_data
+feature_extraction = None # The function of feature extraction to be applied
+global cross_domain_testing_data # Speeding up the cross domain testing by not extracting it each time.
 cross_domain_testing_data = None
 
-fo = open("N:\\Downloads\\NLE\\results_nb_mostImp_nb.txt", "wb")
+# open file to write results out to
+fo = open("N:\\Downloads\\NLE\\results_naive_bayes_test.txt", "wb")
 
-if k_fold == False:
-    
+if k_fold == False: # preserving functionality for when k folding isn't used
+    # Main for loop of the experiment
     for x in xrange(0,number_of_tests):
     
         sys.stdout.write('TEST_NUMBER:' + str(x) + ':'),
@@ -46,12 +48,12 @@ if k_fold == False:
                 train_nb_data, test_nb_data = nle_utils.format_for_naive_bayes(domain_split,feature_extraction)
                 # train_nb_data = 1600 reviews when train ratio is 80%
                 # to vary training data sizes uncomment the line below
-                #train_nb_data = train_nb_data[:400]
+                train_nb_data = train_nb_data
                 nb_classifier = NaiveBayesClassifier.train(train_nb_data)
                 sys.stdout.write("ACCURACY:" + str(accuracy(nb_classifier, test_nb_data)) + '\n')
                 fo.write("ACCURACY:" + str(accuracy(nb_classifier, test_nb_data)) + '\r\n')
                 #Print the features that the NB classifier found to be most important in making classifications
-                nb_classifier.show_most_informative_features()
+                #nb_classifier.show_most_informative_features()
             # if cross domain
             elif (cross_domain != ""):
                 
@@ -65,17 +67,15 @@ if k_fold == False:
                 
                 nb_classifier = NaiveBayesClassifier.train(train_nb_data)
                 accuracy_val = accuracy(nb_classifier, cross_domain_testing_data)
-                
                 sys.stdout.write("ACCURACY:" + str(accuracy_val) + '\n')
                 fo.write("ACCURACY:" + str(accuracy_val) + '\r\n')
-                nb_classifier.show_most_informative_features()
             
             else:
                 print "Incorrect cross domain value, use a vaild amazon review category or leave variable empty."
             
             i += 1
 else:
-    
+    # The k - folds approach - this failed to work due to a type error in the nle_utils functions.
     for x in xrange(0,number_of_tests):
         
         # 10 folding 
@@ -116,5 +116,5 @@ else:
                 print "Incorrect cross domain value, use a vaild amazon review category or leave variable empty."
             
             i += 1
-    
+# Closing file and saving results
 fo.close()

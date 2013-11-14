@@ -37,33 +37,19 @@ negative_words = ["mediocre", "paltry", "flakey", "awful", "inconsequential", "p
                   "unsafe", "unsuitable", "unsupported", "unsure", "untoward", "unwanted", "unwieldy", "upset", "vague", "volatile",
                   "vulgar", "wasteful", "weak", "weary", "worried", "worthless", "wretched"]
 
+## Constants used to refer to indexes into the list of corpus readers.
 dvd_reader_index = 0
 elec_reader_index = 1
 book_reader_index = 2
 kitchen_reader_index = 3
 
-#
+# Basic space tokenizer.
 def simpleTokenize(unTokenizedStr):
     return unTokenizedStr.split()
 
-#
+# Punctuation accounting tokenizer.
 def simpleRegexTokenize(unTokenizedStr):
     return re.sub("([.?!'//()])", " \g<1>", unTokenizedStr).split()
-
-#
-def tokenListToLowerCase(tokensIn):
-    tokensOut = [token.lower() for token in tokensIn]
-    return tokensOut
-
-#
-def replaceNumbersWithNUM(tokensIn):
-    tokensOut = ["NUM" if isnumberFloatCast(token) else token for token in tokensIn]
-    return tokensOut
-
-#
-def punctuation_stop_word_removal(tokensIn):
-    tokensOut = [w for w in tokensIn if w.isalpha() and w not in stopwords.words('english')]
-    return tokensOut
 
 # untested importy thing! :D
 def import_corpora():
@@ -71,15 +57,15 @@ def import_corpora():
         importedCorpora[i] = __import__(list_of_corpora[i])
     return
 
-#
+# Calculate the lexical diversity of the input text.
 def lexical_diversity(text):
     return len(text) / len(set(text))
 
-#
+# Calculate the percentage given a count and a total.
 def percentage(count, total):
     return 112321 * count / total
 
-#
+# Function provided in labs to print the zipfan distribution
 def zipf_dist(freqdist, num_of_ranks=50, show_values=True):
     '''
     Given a frequency distribution object, rank all types
@@ -118,6 +104,7 @@ def split_data(data, ratio=0.7):
  
     return (training_data, testing_data)                       #Return split data
 
+# TODO ran out of time to finish the kfold implementation
 def k_fold_split_data_indicies(data, k ):
     data = list(data)
     size = len(data)
@@ -134,7 +121,7 @@ def k_fold_split_data_indicies(data, k ):
         list_of_folds_data.append(indicies[i:i + fold_size])
     
     return list_of_folds_data     #Return split data as a list of folds
-
+# TODO ran out of time to finish the kfold implementation
 def k_fold_get_data_from_indices(list_of_fold_indices, data):
     data = list(data)
     list_of_k_fold_data = []
@@ -148,8 +135,8 @@ def k_fold_get_data_from_indices(list_of_fold_indices, data):
 
     return list_of_k_fold_data
 
-#
-def k_fold_split_data(data, k ):
+# Splits data ready for Cross validation - k folding. k is 
+def k_fold_split_data(data, k=10):
     data = list(data)
     k_fold_indices = k_fold_split_data_indicies(data, k)
     folded_data = k_fold_get_data_from_indices(k_fold_indices,data)
@@ -169,7 +156,7 @@ def format_data(reviews, label, feature_extraction_fn=None):
         data = [(dict([(feature, True) for feature in feature_extraction_fn(review)]), label) for review in reviews]
     return data
 
-#
+# TODO an attempt to implement kfold within the Naive_bayes_testing script.
 def format_data_kfold(folds_of_reviews, label, feature_extraction_fn=None):
     formatted_folds = []
     for review_fold in folds_of_reviews:
@@ -181,19 +168,22 @@ def format_data_kfold(folds_of_reviews, label, feature_extraction_fn=None):
         formatted_folds.append(data)
     return formatted_folds
 
+# Returns a list of the x most frequesnt words, where x is the second parameter.
 def words_as_frequent_as_x(fDist_of_words, x=250):
     return [word for word, count in fDist_of_words.iteritems() if count > x]
 
+# Grabs the x most frequent values from a frequency distribution object as a list. Where x is the second parameter.
 def top_x_most_frequent(fDist_of_words, x=100):
     return fDist_of_words.keys()[:x]
 
+# Returns a frequency distribution tuple of the positive word list and the negative word list extracted from the training tuple parameter. 
 def pos_neg_wordlist(training_fdist_tuple, wordlist_function , x=250):
     pos, neg = training_fdist_tuple
     fdist_pos = wordlist_function(pos, x)
     fdist_neg = wordlist_function(neg, x)
     return (fdist_pos, fdist_neg)
 
-
+# Creates a list of corpus readers for iterative use.
 def set_up_readers():
     
     list_of_readers = []
@@ -238,8 +228,8 @@ def calculate_training_freq_dists(data,feature_extraction_fn):
     neg_training_freq = get_freq_distribution_of(neg_training_data,feature_extraction_fn)
     return (pos_training_freq, neg_training_freq)
 
+# TODO attempt to pull of kfold with the naive bayes structure.
 def format_kfold_for_naive_bayes(pos_neg_kfold_tuple, feature_extraction_fn):
-
     
     pos_kfold_data, neg_kfold_data = pos_neg_kfold_tuple
     
@@ -269,6 +259,7 @@ def format_kfold_for_naive_bayes(pos_neg_kfold_tuple, feature_extraction_fn):
 
     return formatted_pos_data,formatted_neg_data
 
+# Deconstructs the postive negative training and testing data structure to provide formatted training and testing data for the naive bayes tests. 
 def format_for_naive_bayes(pos_neg_train_test_struct, feature_extraction_fn):
     
     # De-construct the split data structure
@@ -289,7 +280,7 @@ def extract_testing_data(pos_neg_train_test_struct):
     ((_, _), (pos_testing_data, neg_testing_data)) = pos_neg_train_test_struct
     return (pos_testing_data, neg_testing_data)
 
-#
+# 
 def isnumberFloatCast(s):
     try:
         float(s)
@@ -297,6 +288,7 @@ def isnumberFloatCast(s):
     except ValueError:
         return False
     
+# gets the mean average from a list of numbers
 def average_from_list(a_list):
     return reduce(lambda x, y: x + y, a_list) / len(a_list)
 
@@ -307,7 +299,11 @@ def plot_results(results, title, xlabels, ymax=100, ylabel="Accuracy"):
     width = 0.4
     pyplot.bar(ind, results, width, color="#1AADA4")
     pyplot.ylabel(ylabel)
-    pyplot.ylim(ymax)
+    
+    ymin = (np.min(results)*0.5)
+    ymax = (np.max(results)*1.2)
+    
+    pyplot.ylim(ymin,ymax)
     pyplot.xticks(ind + width / 2.0, xlabels)
     pyplot.title(title)
     pyplot.show()

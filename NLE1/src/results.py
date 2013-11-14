@@ -10,7 +10,7 @@ import sys
 import nle_utils
 import numpy as np
 
-fo = open("N:\\Downloads\\NLE\\results_nb.txt", "r")
+fo = open("N:\\Downloads\\NLE\\results_nb_20131111_feature_extractor_stopwords.txt", "r")
 
 list_of_result_lists = []
 result_labels = []
@@ -77,24 +77,27 @@ print list_of_result_lists
 
 averages = map(nle_utils.average_from_list ,list_of_result_lists) # list of mean values
 standard_deviations = map(np.std ,list_of_result_lists)
-nle_utils.plot_results(averages, "The average accuracy of the Naive Bayes Classifier (after "+ str(len(list_of_result_lists[0])) +" runs)",['dvd', 'elec', 'book', 'kitchen'],(0,1))
+nle_utils.plot_results(averages, "The mean values of "+ str(len(list_of_result_lists[0])) +" trial results",['elec', 'dvd', 'book', 'kitchen'],(0,1))
 
+print averages
 print standard_deviations
 
 import matplotlib.pyplot as plt     # graph plotting
 
-mu, sigma = averages[0], standard_deviations[0] # mean and standard deviation
+
+mu, sigma = 0.7847, 0.01782 # mean and standard deviation
 s = np.random.normal(mu, sigma, 1000)
 count, bins, ignored = plt.hist(s, 30, normed=True)
 plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
 np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
 linewidth=2, color='r')
 
-mu, sigma = averages[1], standard_deviations[1] # mean and standard deviation
+mu, sigma = 0.7417, 0.03795 # mean and standard deviation
 s = np.random.normal(mu, sigma, 1000)
 count, bins, ignored = plt.hist(s, 30, normed=True)
 plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
 np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
 linewidth=2, color='b')
+
 plt.show()
 
