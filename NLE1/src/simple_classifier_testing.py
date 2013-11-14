@@ -10,15 +10,13 @@ import feature_extractors as fe
 
 import sys
 
-
-
-
 # Ensure Amazon readers are defined
 list_of_readers = nle_utils.set_up_readers()
 number_of_tests = 30
 feature_extractor = fe.simple_feature_extractor_stopwords
 
-fo = open("N:\\Downloads\\NLE\\results_s_mif_100most.txt", "wb")
+# File to be written tto
+fo = open("N:\\Downloads\\NLE\\results_simple_classifier_test.txt", "wb")
 
 for x in xrange(0,number_of_tests):
 
@@ -53,7 +51,7 @@ for x in xrange(0,number_of_tests):
         print "neg"
         print neg_freqd[:10]
         
-        
+        #Assign word lists to classifier
         s = simple_classifier.SimpleClassifier(wordlist_tuple[0],wordlist_tuple[1])
         
         # domain_split[1][0] positive documents for the domains
@@ -64,9 +62,16 @@ for x in xrange(0,number_of_tests):
         intro_pos_txt = "I have a list of positive words and my classifier thinks they are "
         intro_neg_txt = "I have a list of negative words and my classifier thinks they are "
         
+        # Calculate accuracy
         sys.stdout.write("ACCURACY:" + str(nle_utils.evaluate_wordlist_classifier(s,domain_split[1][0],domain_split[1][1])) + '\n')
         fo.write("ACCURACY:" + str(nle_utils.evaluate_wordlist_classifier(s,domain_split[1][0],domain_split[1][1])) + '\r\n')
         
+        #Comment both lines below to improve performance
         print intro_pos_txt + p
         print intro_neg_txt + n
+        
+        # iterate counter
         i += 1
+        
+# Closing file and saving results
+fo.close()

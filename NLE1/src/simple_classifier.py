@@ -1,3 +1,5 @@
+''' FROM LABS '''
+
 from nltk.classify.api import ClassifierI
 import random
 
